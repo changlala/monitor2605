@@ -5,6 +5,7 @@ import android.app.Application
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
+import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.*
 import com.monitor.app.config.ConfigManager
 import com.monitor.app.diag.DiagnosticLogger
@@ -18,11 +19,17 @@ import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltAndroidApp
-class MonitorApplication : Application() {
+class MonitorApplication : Application(), Configuration.Provider {
 
     @Inject lateinit var configManager: ConfigManager
     @Inject lateinit var keepAliveManager: KeepAliveManager
     @Inject lateinit var diagnosticLogger: DiagnosticLogger
+    @Inject lateinit var workerFactory: HiltWorkerFactory
+
+    override val workManagerConfiguration: Configuration
+        get() = Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
 
     override fun onCreate() {
         super.onCreate()
