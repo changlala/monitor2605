@@ -16,15 +16,16 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.10.2'
+
       - uses: android-actions/setup-android@v3
         with:
           packages: 'platforms;android-34 build-tools;34.0.0'
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
       - name: Build Release APK
-        run: ./gradlew assembleRelease
+        run: gradle assembleRelease
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
