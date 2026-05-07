@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2.2 (2026-05-07)
+
+### Changed
+- 更新 Gitee 配置源地址为 `changhao24/monitor2605`
+
+---
+
 ## v1.2.1 (2026-05-07)
 
 ### Fixed

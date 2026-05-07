@@ -13,11 +13,11 @@ android {
         applicationId = "com.monitor.app"
         minSdk = 29
         targetSdk = 34
-        versionCode = 4
-        versionName = "1.2.1"
+        versionCode = 5
+        versionName = "1.2.2"
         buildConfigField("String", "DEFAULT_CONFIG_SOURCE_URLS",
             "\"https://cdn.jsdelivr.net/gh/changlala/monitor2605@main/config.json5;" +
-            "https://gitee.com/changlala/monitor2605/raw/main/config.json5;" +
+            "https://gitee.com/changhao24/monitor2605/raw/main/config.json5;" +
             "https://raw.githubusercontent.com/changlala/monitor2605/main/config.json5\""
         )
     }
