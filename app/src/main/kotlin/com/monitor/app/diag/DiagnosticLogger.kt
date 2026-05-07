@@ -16,7 +16,7 @@ import javax.inject.Singleton
 class DiagnosticLogger @Inject constructor(
     @ApplicationContext private val context: Context
 ) {
-    private val logDir = File(context.filesDir, "logs")
+    private val logDir = File(context.getExternalFilesDir(null), "logs")
     private val dateFormat = DateTimeFormatter.ofPattern("yyyy_MM_dd")
     private var currentDate: String? = null
     private var writer: BufferedWriter? = null
