@@ -9,12 +9,11 @@ import javax.inject.Singleton
 @Singleton
 class ConfigSources @Inject constructor() {
 
-    private val client = OkHttpClient.Builder()
-        .connectTimeout(10, TimeUnit.SECONDS)
-        .readTimeout(10, TimeUnit.SECONDS)
-        .build()
-
     fun fetch(sources: List<ConfigSource>, timeoutSeconds: Int): Result<String> {
+        val client = OkHttpClient.Builder()
+            .connectTimeout(timeoutSeconds.toLong(), TimeUnit.SECONDS)
+            .readTimeout(timeoutSeconds.toLong(), TimeUnit.SECONDS)
+            .build()
         for (source in sources.sortedBy { it.priority }) {
             try {
                 val request = Request.Builder().url(source.url).build()

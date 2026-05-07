@@ -63,7 +63,11 @@ class ConfigManager @Inject constructor(
 
     private fun stripComments(json5: String): String {
         return json5.lines()
-            .map { it.replace(Regex("//.*$"), "").replace(Regex("/\\*.*?\\*/"), "") }
+            .map { line ->
+                var result = line.replace(Regex("(?<!:)//.*$"), "")  // Don't strip :// in URLs
+                result = result.replace(Regex("/\\*.*?\\*/"), "")
+                result
+            }
             .filter { it.isNotBlank() }
             .joinToString("\n")
     }
