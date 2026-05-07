@@ -3,8 +3,10 @@ package com.monitor.app.ui
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import android.widget.Button
 import android.widget.TextView
 import android.widget.Toast
@@ -30,7 +32,7 @@ class GuideActivity : ComponentActivity() {
                 startServiceAndFinish()
             } else {
                 updateStatus()
-                Toast.makeText(this, "请授予所有必需权限后再启动", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "请授予所有必需权限", Toast.LENGTH_SHORT).show()
             }
         }
 
@@ -38,14 +40,23 @@ class GuideActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guide)
 
+        if (allGranted()) {
+            // Already authorized, start immediately
+            startServiceAndFinish()
+            return
+        }
+
         updateStatus()
 
         findViewById<Button>(R.id.btn_finish).setOnClickListener {
-            if (allGranted()) {
-                startServiceAndFinish()
-            } else {
-                permissionLauncher.launch(requiredPermissions.toTypedArray())
+            permissionLauncher.launch(requiredPermissions.toTypedArray())
+        }
+
+        findViewById<Button>(R.id.btn_settings).setOnClickListener {
+            val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                data = Uri.parse("package:$packageName")
             }
+            startActivity(intent)
         }
     }
 
@@ -69,17 +80,17 @@ class GuideActivity : ComponentActivity() {
             sb.appendLine("${if (granted) "[已授权]" else "[未授权]"} $name")
         }
 
-        val instructions = when {
+        val oemHint = when {
             Build.MANUFACTURER.equals("OPPO", ignoreCase = true) ||
             Build.MANUFACTURER.equals("OnePlus", ignoreCase = true) ->
-                "\nOPPO 设备额外步骤：设置 → 应用管理 → 本应用 → 耗电保护 → 允许后台运行"
+                "\nOPPO 额外步骤：设置 → 应用管理 → 本应用 → 耗电保护 → 允许后台运行"
             Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true) ->
-                "\n小米设备额外步骤：设置 → 应用设置 → 授权管理 → 自启动管理 → 允许本应用自启动"
+                "\n小米额外步骤：设置 → 应用设置 → 授权管理 → 自启动管理 → 允许本应用自启动"
             Build.MANUFACTURER.equals("Huawei", ignoreCase = true) ->
-                "\n华为设备额外步骤：手机管家 → 应用启动管理 → 关闭自动管理 → 允许自启动"
+                "\n华为额外步骤：手机管家 → 应用启动管理 → 关闭自动管理 → 允许自启动"
             else -> ""
         }
-        sb.append(instructions)
+        if (oemHint.isNotEmpty()) sb.append(oemHint)
 
         findViewById<TextView>(R.id.guide_text).text = sb.toString()
     }

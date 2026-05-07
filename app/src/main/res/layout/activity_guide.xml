@@ -19,5 +19,13 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="已设置完毕" />
+        android:text="授权权限" />
+
+    <Button
+        android:id="@+id/btn_settings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="系统设置"
+        style="?android:attr/buttonBarButtonStyle" />
 </LinearLayout>
