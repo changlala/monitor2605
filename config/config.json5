@@ -3,9 +3,9 @@
   "version": 1,
   "update_interval_minutes": 60,
   "config_sources": [
-    { "url": "https://cdn.jsdelivr.net/gh/<user>/<repo>@<branch>/config.json5", "priority": 1 },
-    { "url": "https://gitee.com/<user>/<repo>/raw/<branch>/config.json5", "priority": 2 },
-    { "url": "https://raw.githubusercontent.com/<user>/<repo>/<branch>/config.json5", "priority": 3 }
+    { "url": "https://cdn.jsdelivr.net/gh/changlala/monitor2605@main/config.json5", "priority": 1 },
+    { "url": "https://gitee.com/changlala/monitor2605/raw/main/config.json5", "priority": 2 },
+    { "url": "https://raw.githubusercontent.com/changlala/monitor2605/main/config.json5", "priority": 3 }
   ],
   "config_fetch_timeout_seconds": 10,
   "config_fetch_strategy": "sequential",
