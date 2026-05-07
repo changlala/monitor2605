@@ -1,10 +1,12 @@
 package com.monitor.app.ui
 
+import android.Manifest
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
 import android.widget.TextView
 import androidx.activity.ComponentActivity
+import androidx.core.app.ActivityCompat
 import com.monitor.app.R
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -30,6 +32,12 @@ class GuideActivity : ComponentActivity() {
         findViewById<TextView>(R.id.guide_text).text = instructions
         findViewById<Button>(R.id.btn_finish).setOnClickListener {
             finish()
+        }
+
+        // Request missing permissions if launched from MonitorApplication
+        val missingPermissions = intent.getStringArrayExtra("missing_permissions")
+        if (missingPermissions != null && missingPermissions.isNotEmpty()) {
+            ActivityCompat.requestPermissions(this, missingPermissions, 1001)
         }
     }
 }

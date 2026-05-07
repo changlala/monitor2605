@@ -51,8 +51,34 @@ class LocationService : Service(), LifecycleOwner {
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         dispatcher.onServicePreSuperOnStart()
         val config = configManager.getConfigBlocking()
-        startForeground(1, buildNotification(config))
+        val notification = buildNotification(config)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+            startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+        } else {
+            startForeground(1, notification)
+        }
         startLocationUpdates(config)
+
+        // Periodic strategy re-evaluation
+        scope.launch {
+            while (isActive) {
+                delay(60_000L) // Check every minute
+                val currentConfig = configManager.getConfigBlocking()
+                val pct = getBatterySnapshot()
+                val d = strategyDecider.decide(currentConfig, pct)
+
+                if (d.forceWorkManager) {
+                    // Stop continuous updates, switch to WorkManager
+                    locationCallback?.let { fusedClient.removeLocationUpdates(it) }
+                    LocationWorker.schedule(this@LocationService, d.intervalSeconds)
+                    diagnosticLogger.log("mode_switch", """{"to":"${d.effectiveConfig}","reason":"battery_critical"}""")
+                    // Stay as foreground service for keep-alive, but stop collecting
+                    // Cancel this coroutine
+                    cancel()
+                }
+            }
+        }
+
         return START_STICKY
     }
 
@@ -60,6 +86,13 @@ class LocationService : Service(), LifecycleOwner {
 
     private fun startLocationUpdates(config: AppConfig) {
         val decision = strategyDecider.decide(config, 100)
+
+        if (decision.forceWorkManager) {
+            // Critical battery: defer to WorkManager only, don't use continuous updates
+            diagnosticLogger.log("mode_switch", """{"to":"${decision.effectiveConfig}","reason":"force_workmanager"}""")
+            LocationWorker.schedule(this, decision.intervalSeconds)
+            return
+        }
 
         val request = LocationRequest.Builder(
             decision.intervalSeconds * 1000L, decision.intervalSeconds * 1000L

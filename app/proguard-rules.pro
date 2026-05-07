@@ -1,7 +1,7 @@
 # Keep Gson serialized classes
 -keepattributes Signature
 -keepattributes *Annotation*
--keep class com.monitor.app.config.ConfigModel$** { *; }
+-keep class com.monitor.app.config.** { *; }
 -keep class com.monitor.app.db.entities.** { *; }
 
 # Room
@@ -11,3 +11,8 @@
 # OkHttp
 -dontwarn okhttp3.internal.platform.**
 -dontwarn org.conscrypt.**
+
+# Hilt
+-keep class dagger.hilt.** { *; }
+-keep class javax.inject.** { *; }
+-keep class * extends dagger.hilt.android.internal.managers.ViewComponentManager$FragmentContextWrapper { *; }

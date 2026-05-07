@@ -1,6 +1,7 @@
 package com.monitor.app.keepalive
 
 import android.app.ActivityManager
+import android.app.ForegroundServiceStartNotAllowedException
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
@@ -21,7 +22,11 @@ class WatchdogReceiver : BroadcastReceiver() {
         if (!isRunning) {
             diagnosticLogger.log("alarm_wakeup", """{"service_alive":false,"action":"restart"}""")
             val serviceIntent = Intent(context, LocationService::class.java)
-            context.startForegroundService(serviceIntent)
+            try {
+                context.startForegroundService(serviceIntent)
+            } catch (e: ForegroundServiceStartNotAllowedException) {
+                diagnosticLogger.log("watchdog_restart_blocked", """{"reason":"background_launch_restricted"}""")
+            }
         }
     }
 

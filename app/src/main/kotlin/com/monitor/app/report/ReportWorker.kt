@@ -78,8 +78,8 @@ class ReportWorker @AssistedInject constructor(
                     retryCount++
                     if (retryCount >= config.report.retry_max) {
                         diagnosticLogger.log("report_abandon", """{"count":${batch.size}}""")
-                        retryCount = 0
-                        // Continue to next batch
+                        break
+                        // Exit doWork — next periodic run will retry
                     } else {
                         val backoffSeconds = config.report.retry_backoff_base_seconds *
                                 Math.pow(2.0, retryCount - 1.0).toInt()

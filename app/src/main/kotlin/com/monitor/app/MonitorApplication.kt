@@ -1,13 +1,17 @@
 package com.monitor.app
 
+import android.Manifest
 import android.app.Application
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.work.*
 import com.monitor.app.config.ConfigManager
 import com.monitor.app.diag.DiagnosticLogger
 import com.monitor.app.keepalive.KeepAliveManager
 import com.monitor.app.location.LocationService
 import com.monitor.app.report.ReportWorker
+import com.monitor.app.ui.GuideActivity
 import com.monitor.app.util.TimeRangeMatcher
 import dagger.hilt.android.HiltAndroidApp
 import java.time.LocalTime
@@ -36,8 +40,28 @@ class MonitorApplication : Application() {
         // Initialize config (loads cached, then async fetches remote)
         configManager.init()
 
+        // Check permissions on Android 10+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            val missingPermissions = mutableListOf<String>()
+            if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                missingPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+            if (checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                missingPermissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+                checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
+                missingPermissions.add(Manifest.permission.POST_NOTIFICATIONS)
+
+            if (missingPermissions.isNotEmpty()) {
+                // Launch GuideActivity to request permissions
+                val guideIntent = Intent(this, GuideActivity::class.java)
+                guideIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                guideIntent.putExtra("missing_permissions", missingPermissions.toTypedArray())
+                startActivity(guideIntent)
+            }
+        }
+
         // Start foreground location service
-        val intent = android.content.Intent(this, LocationService::class.java)
+        val intent = Intent(this, LocationService::class.java)
         startForegroundService(intent)
 
         // Schedule watchdog
