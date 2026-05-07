@@ -58,10 +58,8 @@ class MonitorApplication : Application(), Configuration.Provider {
             missingPermissions = missing
 
             if (missing.isNotEmpty()) {
-                // Launch GuideActivity to request permissions, defer service start
                 val guideIntent = Intent(this, GuideActivity::class.java)
                 guideIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                guideIntent.putExtra("missing_permissions", missing.toTypedArray())
                 startActivity(guideIntent)
                 return  // Don't start service until permissions granted
             }

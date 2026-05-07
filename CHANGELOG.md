@@ -1,5 +1,18 @@
 # Changelog
 
+## v1.3.0 (2026-05-07)
+
+### Added
+- 权限检查页实时显示各权限授予状态（已授权/未授权）
+- 点击按钮批量请求所有缺失权限
+- 仅当全部权限授予后才启动服务
+
+### Changed
+- 引导页 UI 改为权限清单列表 + 完成按钮
+- 移除 @AndroidEntryPoint，改用现代 ActivityResultContracts API
+
+---
+
 ## v1.2.9 (2026-05-07)
 
 ### Fixed
