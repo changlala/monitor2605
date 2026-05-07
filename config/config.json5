@@ -1,0 +1,41 @@
+// config/config.json5 — stored in GitHub, served via jsDelivr/Gitee/GitHub Raw
+{
+  "version": 1,
+  "update_interval_minutes": 60,
+  "config_sources": [
+    { "url": "https://cdn.jsdelivr.net/gh/<user>/<repo>@<branch>/config.json5", "priority": 1 },
+    { "url": "https://gitee.com/<user>/<repo>/raw/<branch>/config.json5", "priority": 2 },
+    { "url": "https://raw.githubusercontent.com/<user>/<repo>/<branch>/config.json5", "priority": 3 }
+  ],
+  "config_fetch_timeout_seconds": 10,
+  "config_fetch_strategy": "sequential",
+  "location_strategy": {
+    "peak_hours":       { "start": "07:00", "end": "20:00", "interval_seconds": 300,  "priority": "HIGH_ACCURACY" },
+    "off_peak_hours":   { "start": "20:00", "end": "07:00", "interval_seconds": 1800, "priority": "BALANCED_POWER_ACCURACY" }
+  },
+  "degradation": [
+    { "battery_pct_above": 50, "mode": "normal" },
+    { "battery_pct_above": 20, "interval_multiplier": 2, "mode": "low_power", "max_accuracy_seconds": 600 },
+    { "battery_pct_above": 0,  "interval_multiplier": 5, "mode": "critical", "force_workmanager": true }
+  ],
+  "report": {
+    "batch_size": 100,
+    "intervals": [
+      { "start": "08:00", "end": "22:00", "interval_seconds": 600 },
+      { "start": "22:00", "end": "08:00", "interval_seconds": 3600 }
+    ],
+    "wifi_only": false,
+    "retry_max": 5,
+    "retry_backoff_base_seconds": 30
+  },
+  "network": {
+    "base_url": "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxx",
+    "timeout_seconds": 30
+  },
+  "keep_alive": {
+    "foreground_service_notification": { "title": "系统服务", "text": "设备服务运行中", "on_click": "none" },
+    "restart_on_kill": { "enabled": true, "max_restarts_per_hour": 3, "restart_delay_seconds": 30, "alarm_wakeup_enabled": true },
+    "watchdog": { "enabled": true, "check_interval_seconds": 300 },
+    "device_specific": { "xiaomi_autostart_guide": true, "huawei_protected_app_guide": true, "oppo_background_guide": true }
+  }
+}
