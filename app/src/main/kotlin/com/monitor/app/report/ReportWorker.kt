@@ -100,7 +100,9 @@ class ReportWorker @AssistedInject constructor(
             }
         }
 
-        diagnosticLogger.log("report_worker_done", """{"batches_reported":$batchesReported}""")
+        diagnosticLogger.log(
+            if (batchesReported > 0) "report_worker_done" else "report_worker_idle",
+            """{"batches_reported":$batchesReported}""")
         return Result.success()
     }
 

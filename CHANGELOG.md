@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.9 (2026-05-07)
+
+### Fixed
+- 修复 startLocationUpdates 硬编码电量 100%，导致低电量时仍启动高功耗 GPS
+- 改用同步电量快照，低电量启动时直接走 WorkManager，跳过无效 GPS 等待
+- report_worker_done 无数据时改为 report_worker_idle，避免误认为上报成功
+
+---
+
 ## v1.3.8 (2026-05-07)
 
 ### Fixed

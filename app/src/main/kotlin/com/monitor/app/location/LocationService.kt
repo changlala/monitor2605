@@ -5,7 +5,9 @@ import android.app.NotificationManager
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.content.IntentFilter
 import android.location.Location
+import android.os.BatteryManager
 import android.os.Build
 import android.os.IBinder
 import android.os.PowerManager
@@ -66,7 +68,7 @@ class LocationService : Service(), LifecycleOwner {
             } else {
                 startForeground(1, notification)
             }
-            startLocationUpdates(config)
+            startLocationUpdates(config, getBatteryPctSync())
 
             // Schedule supporting workers regardless of which code path started us
             keepAliveManager.scheduleWatchdog(config.keep_alive.watchdog.check_interval_seconds)
@@ -110,12 +112,12 @@ class LocationService : Service(), LifecycleOwner {
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    private fun startLocationUpdates(config: AppConfig) {
+    private fun startLocationUpdates(config: AppConfig, batteryPct: Int) {
         // Remove any existing callback to prevent duplicate registrations on restart
         locationCallback?.let { fusedClient.removeLocationUpdates(it) }
         locationCallback = null
 
-        val decision = strategyDecider.decide(config, 100)
+        val decision = strategyDecider.decide(config, batteryPct)
 
         if (decision.forceWorkManager) {
             // Critical battery: defer to WorkManager only, don't use continuous updates
@@ -160,6 +162,18 @@ class LocationService : Service(), LifecycleOwner {
             fusedClient.requestLocationUpdates(request, callback, mainLooper)
         } catch (e: SecurityException) {
             diagnosticLogger.log("location_permission_denied")
+        }
+    }
+
+    private fun getBatteryPctSync(): Int {
+        return try {
+            val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
+            val intent = registerReceiver(null, filter)
+            val level = intent?.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) ?: -1
+            val scale = intent?.getIntExtra(BatteryManager.EXTRA_SCALE, -1) ?: -1
+            if (level >= 0 && scale > 0) (level * 100 / scale) else 100
+        } catch (e: Exception) {
+            100
         }
     }
 
