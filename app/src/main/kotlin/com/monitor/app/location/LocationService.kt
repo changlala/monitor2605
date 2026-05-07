@@ -98,9 +98,8 @@ class LocationService : Service(), LifecycleOwner {
             return
         }
 
-        val request = LocationRequest.Builder(
-            decision.intervalSeconds * 1000L, decision.intervalSeconds * 1000L
-        ).setMinUpdateIntervalMillis(decision.intervalSeconds * 1000L)
+        val request = LocationRequest.Builder(decision.intervalSeconds * 1000L)
+            .setMinUpdateIntervalMillis(decision.intervalSeconds * 1000L)
             .setMaxUpdateDelayMillis((decision.intervalSeconds * 1500L))
             .setPriority(if (decision.priority == "HIGH_ACCURACY")
                 Priority.PRIORITY_HIGH_ACCURACY else Priority.PRIORITY_BALANCED_POWER_ACCURACY)

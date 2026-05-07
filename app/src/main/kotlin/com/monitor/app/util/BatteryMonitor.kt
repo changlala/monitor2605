@@ -17,17 +17,20 @@ object BatteryMonitor {
 
     fun observe(context: Context): Flow<BatteryState> = callbackFlow {
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
-        val receiver = android.content.BroadcastReceiver { _, intent ->
-            val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
-            val pct = if (scale > 0) {
-                intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100 / scale
-            } else {
-                0
+        val receiver = object : android.content.BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent == null) return
+                val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+                val pct = if (scale > 0) {
+                    intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100 / scale
+                } else {
+                    0
+                }
+                val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
+                val charging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                        status == BatteryManager.BATTERY_STATUS_FULL
+                trySend(BatteryState(pct.coerceIn(0, 100), charging))
             }
-            val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-            val charging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                    status == BatteryManager.BATTERY_STATUS_FULL
-            trySend(BatteryState(pct.coerceIn(0, 100), charging))
         }
         context.registerReceiver(receiver, filter)
         // Fire initial value

@@ -3,6 +3,7 @@ package com.monitor.app.ui
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
+import com.monitor.app.R
 import com.monitor.app.diag.DiagnosticLogger
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
