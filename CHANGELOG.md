@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2.6 (2026-05-07)
+
+### Fixed
+- 补全 FeishuClient HTTP 异常日志，code=-1 时记录完整堆栈
+
+---
+
 ## v1.2.5 (2026-05-07)
 
 ### Fixed

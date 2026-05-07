@@ -1,5 +1,6 @@
 package com.monitor.app.report
 
+import com.monitor.app.diag.DiagnosticLogger
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -9,7 +10,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class FeishuClient @Inject constructor() {
+class FeishuClient @Inject constructor(
+    private val diagnosticLogger: DiagnosticLogger
+) {
 
     private val client = OkHttpClient.Builder()
         .connectTimeout(30, TimeUnit.SECONDS)
@@ -38,6 +41,7 @@ class FeishuClient @Inject constructor() {
                 responseCode = response.code
             )
         } catch (e: Exception) {
+            diagnosticLogger.exception("feishu_send", e)
             ReportResult(success = false, responseCode = -1, error = e.message)
         }
     }
