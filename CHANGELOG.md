@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2.7 (2026-05-07)
+
+### Fixed
+- 修复飞书 interactive card 元素格式，`plain_text` 改为 `div` 包裹（修复 report_fail）
+
+---
+
 ## v1.2.6 (2026-05-07)
 
 ### Fixed

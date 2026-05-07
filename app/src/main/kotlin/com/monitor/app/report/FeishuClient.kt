@@ -69,10 +69,10 @@ class FeishuClient @Inject constructor(
                     "template" to "blue"
                 ),
                 "elements" to listOf(
-                    mapOf("tag" to "plain_text", "content" to "设备: ${batch.deviceId}"),
-                    mapOf("tag" to "plain_text", "content" to "时间戳: ${batch.timestamp}"),
-                    mapOf("tag" to "plain_text", "content" to "条数: ${batch.records.size}"),
-                    mapOf("tag" to "plain_text", "content" to "数据: ${gson.toJson(recordsArray)}")
+                    mapOf("tag" to "div", "text" to mapOf("tag" to "plain_text", "content" to "设备: ${batch.deviceId}")),
+                    mapOf("tag" to "div", "text" to mapOf("tag" to "plain_text", "content" to "时间戳: ${batch.timestamp}")),
+                    mapOf("tag" to "div", "text" to mapOf("tag" to "plain_text", "content" to "条数: ${batch.records.size}")),
+                    mapOf("tag" to "div", "text" to mapOf("tag" to "plain_text", "content" to "数据: ${gson.toJson(recordsArray)}"))
                 )
             )
         ))
