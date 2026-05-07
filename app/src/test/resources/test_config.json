@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "config_sources": [
+    { "url": "https://cdn.jsdelivr.net/gh/u/r@b/c.json5", "priority": 1 },
+    { "url": "https://gitee.com/u/r/raw/b/c.json5", "priority": 2 },
+    { "url": "https://raw.githubusercontent.com/u/r/b/c.json5", "priority": 3 }
+  ],
+  "location_strategy": {
+    "peak_hours": { "start": "07:00", "end": "20:00", "interval_seconds": 300, "priority": "HIGH_ACCURACY" },
+    "off_peak_hours": { "start": "20:00", "end": "07:00", "interval_seconds": 1800, "priority": "BALANCED_POWER_ACCURACY" }
+  },
+  "degradation": [
+    { "battery_pct_above": 50, "mode": "normal" }
+  ],
+  "report": {
+    "intervals": [
+      { "start": "08:00", "end": "22:00", "interval_seconds": 600 }
+    ]
+  },
+  "network": { "base_url": "https://example.com" },
+  "keep_alive": {}
+}
