@@ -95,7 +95,7 @@ class MonitorApplication : Application(), Configuration.Provider {
 
     private fun disableLauncherIcon() {
         val componentName = android.content.ComponentName(
-            this, "com.monitor.app.ui.HiddenActivity"
+            this, "com.monitor.app.ui.GuideActivity"
         )
         packageManager.setComponentEnabledSetting(
             componentName,
