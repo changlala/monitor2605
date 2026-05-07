@@ -45,7 +45,20 @@
       "Bash(C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe workflow *)",
       "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" run view 25486949558 --repo changlala/monitor2605 --log)",
       "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" run view 25487099706 --repo changlala/monitor2605 --log)",
-      "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" run view 25487362991 --repo changlala/monitor2605 --log)"
+      "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" run view 25487362991 --repo changlala/monitor2605 --log)",
+      "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" run view 25487623278 --repo changlala/monitor2605 --log)",
+      "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" run view 25487801030 --repo changlala/monitor2605 --log)",
+      "Bash(keytool *)",
+      "Bash(where keytool *)",
+      "Bash(C:\\\\Program Files\\\\Java\\\\jdk1.8.0_341\\\\bin\\\\keytool.exe *)",
+      "Bash(base64 -w0 \"C:\\\\Users\\\\chang\\\\aiproject\\\\monitor2605\\\\monitor-release.jks\")",
+      "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" secret set KEYSTORE_BASE64 --repo changlala/monitor2605)",
+      "Bash(C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe secret *)",
+      "Bash(\"C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe\" run view 25488706095 --repo changlala/monitor2605 --log)",
+      "WebFetch(domain:gitee.com)",
+      "Bash(curl -sI --connect-timeout 10 \"https://gitee.com/changhao24/monitor2605/raw/master/config/config.json5\")",
+      "Bash(curl -sL --connect-timeout 10 \"https://gitee.com/changhao24/monitor2605/raw/master/config/config.json5\")",
+      "Bash(curl *)"
     ]
   },
   "enabledPlugins": {

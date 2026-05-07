@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.2.8 (2026-05-07)
+
+### Fixed
+- Watchdog 改为双重拉活：startForegroundService 失败后自动降级为 WorkManager 拉起
+- 扩大异常捕获范围，防止 OEM 特有异常导致静默失败
+
+---
+
 ## v1.2.7 (2026-05-07)
 
 ### Fixed
