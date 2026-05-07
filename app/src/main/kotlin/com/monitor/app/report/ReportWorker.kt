@@ -37,10 +37,17 @@ class ReportWorker @AssistedInject constructor(
             val range = TimeRangeMatcher.TimeRange(interval.start, interval.end)
             TimeRangeMatcher.isInRange(range, now)
         }
-        if (activeInterval == null) return Result.success()
+        if (activeInterval == null) {
+            diagnosticLogger.log("report_worker_skip", """{"reason":"no_active_interval","time":"$now"}""")
+            return Result.success()
+        }
 
         val batchSize = config.report.batch_size
         var retryCount = 0
+        var batchesReported = 0
+
+        diagnosticLogger.log("report_worker_run",
+            """{"interval":${activeInterval.interval_seconds},"batch_size":$batchSize}""")
 
         while (true) {
             val lastReportedId = reportLogDao.getLastReportedRecordId()
@@ -66,6 +73,7 @@ class ReportWorker @AssistedInject constructor(
 
             if (result.success) {
                 retryCount = 0
+                batchesReported++
                 // Continue to next batch
             } else {
                 val isClientError = result.responseCode in 400..499
@@ -73,11 +81,13 @@ class ReportWorker @AssistedInject constructor(
                     diagnosticLogger.log("report_abandon",
                         """{"count":${batch.size},"code":${result.responseCode},"reason":"4xx_client_error"}""")
                     retryCount = 0
+                    batchesReported++
                     // Continue to next batch
                 } else {
                     retryCount++
                     if (retryCount >= config.report.retry_max) {
                         diagnosticLogger.log("report_abandon", """{"count":${batch.size}}""")
+                        batchesReported++
                         break
                         // Exit doWork — next periodic run will retry
                     } else {
@@ -90,6 +100,7 @@ class ReportWorker @AssistedInject constructor(
             }
         }
 
+        diagnosticLogger.log("report_worker_done", """{"batches_reported":$batchesReported}""")
         return Result.success()
     }
 

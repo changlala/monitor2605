@@ -14,13 +14,18 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ServiceLifecycleDispatcher
 import com.google.android.gms.location.*
+import com.monitor.app.CleanupWorker
 import com.monitor.app.config.AppConfig
 import com.monitor.app.config.ConfigManager
 import com.monitor.app.diag.DiagnosticLogger
+import com.monitor.app.keepalive.KeepAliveManager
+import com.monitor.app.report.ReportWorker
 import com.monitor.app.util.BatteryMonitor
+import com.monitor.app.util.TimeRangeMatcher
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
+import java.time.LocalTime
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -30,6 +35,7 @@ class LocationService : Service(), LifecycleOwner {
     @Inject lateinit var locationRepository: LocationRepository
     @Inject lateinit var strategyDecider: StrategyDecider
     @Inject lateinit var diagnosticLogger: DiagnosticLogger
+    @Inject lateinit var keepAliveManager: KeepAliveManager
 
     private lateinit var fusedClient: FusedLocationProviderClient
     private lateinit var wakeLock: PowerManager.WakeLock
@@ -59,6 +65,17 @@ class LocationService : Service(), LifecycleOwner {
                 startForeground(1, notification)
             }
             startLocationUpdates(config)
+
+            // Schedule supporting workers regardless of which code path started us
+            keepAliveManager.scheduleWatchdog(config.keep_alive.watchdog.check_interval_seconds)
+            val now = LocalTime.now()
+            val activeInterval = config.report.intervals.find { interval ->
+                val range = TimeRangeMatcher.TimeRange(interval.start, interval.end)
+                TimeRangeMatcher.isInRange(range, now)
+            }
+            val reportInterval = activeInterval?.interval_seconds ?: 3600
+            ReportWorker.schedule(this, reportInterval)
+            CleanupWorker.schedule(this)
 
             // Periodic strategy re-evaluation
             scope.launch {

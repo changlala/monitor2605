@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.3.5 (2026-05-07)
+
+### Fixed
+- 修复通过引导页授权后 ReportWorker 未被调度，导致上报永不触发的问题
+- 调度逻辑从 Application.startAllServices 复制到 LocationService.onStartCommand，确保所有启动路径均触发
+
+### Added
+- ReportWorker 增加入口/退出诊断日志，方便排查调度是否生效
+
+---
+
 ## v1.3.4 (2026-05-07)
 
 ### Fixed
