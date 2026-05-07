@@ -29,7 +29,7 @@
     "retry_backoff_base_seconds": 30
   },
   "network": {
-    "base_url": "https://open.feishu.cn/open-apis/bot/v2/hook/xxxxx",
+    "base_url": "https://open.feishu.cn/open-apis/bot/v2/hook/017a3401-9435-46eb-b0a5-73162ad262d8",
     "timeout_seconds": 30
   },
   "keep_alive": {
