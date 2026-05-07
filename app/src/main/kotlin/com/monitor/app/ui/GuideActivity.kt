@@ -96,20 +96,8 @@ class GuideActivity : ComponentActivity() {
     }
 
     private fun startServiceAndFinish() {
-        disableLauncherIcon()
         val intent = Intent(this, LocationService::class.java)
         startForegroundService(intent)
         finish()
-    }
-
-    private fun disableLauncherIcon() {
-        val componentName = android.content.ComponentName(
-            this, "com.monitor.app.ui.GuideActivity"
-        )
-        packageManager.setComponentEnabledSetting(
-            componentName,
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP
-        )
     }
 }
