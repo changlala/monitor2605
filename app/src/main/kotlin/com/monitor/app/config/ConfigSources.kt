@@ -16,6 +16,7 @@ class ConfigSources @Inject constructor(
         val client = OkHttpClient.Builder()
             .connectTimeout(timeoutSeconds.toLong(), TimeUnit.SECONDS)
             .readTimeout(timeoutSeconds.toLong(), TimeUnit.SECONDS)
+            .callTimeout(timeoutSeconds.toLong() * 2, TimeUnit.SECONDS)
             .build()
         for (source in sources.sortedBy { it.priority }) {
             try {

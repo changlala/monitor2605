@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.7 (2026-05-07)
+
+### Fixed
+- 远程配置拉取全部失败时 base_url 默认为空，导致 feishu_send 抛出 IllegalArgumentException
+- NetworkConfig.base_url 默认值设为飞书 Webhook 地址，确保脱配置也能正常上报
+- ConfigSources OkHttp 增加 callTimeout，防止网络异常时无限挂起
+
+---
+
 ## v1.3.6 (2026-05-07)
 
 ### Fixed

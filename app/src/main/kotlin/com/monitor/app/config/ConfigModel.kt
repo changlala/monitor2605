@@ -60,7 +60,7 @@ data class ReportInterval(
 )
 
 data class NetworkConfig(
-    val base_url: String = "",
+    val base_url: String = "https://open.feishu.cn/open-apis/bot/v2/hook/017a3401-9435-46eb-b0a5-73162ad262d8",
     val timeout_seconds: Int = 30
 )
 
