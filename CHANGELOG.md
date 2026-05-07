@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.2.5 (2026-05-07)
+
+### Fixed
+- 修正 Gitee 配置源分支名 `main` → `master`，路径加 `config/` 前缀
+
+---
+
 ## v1.2.4 (2026-05-07)
 
 ### Fixed
