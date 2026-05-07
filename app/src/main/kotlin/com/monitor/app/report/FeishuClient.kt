@@ -43,25 +43,35 @@ class FeishuClient @Inject constructor() {
     }
 
     private fun buildCardJson(batch: ReportPayload.Batch): String {
-        val recordsJson = batch.records.joinToString(",") {
-            """{"lat":${it.lat},"lng":${it.lng},"alt":${it.alt ?: "null"},"acc":${it.acc ?: "null"},"provider":"${it.provider}","ts":${it.ts},"battery":${it.battery ?: "null"}}"""
+        val gson = com.google.gson.Gson()
+        val recordsArray = com.google.gson.JsonArray()
+        for (r in batch.records) {
+            val obj = com.google.gson.JsonObject().apply {
+                addProperty("lat", r.lat)
+                addProperty("lng", r.lng)
+                addProperty("alt", r.alt)
+                addProperty("acc", r.acc)
+                addProperty("provider", r.provider)
+                addProperty("ts", r.ts)
+                addProperty("battery", r.battery)
+            }
+            recordsArray.add(obj)
         }
-        return """
-        {
-          "msg_type": "interactive",
-          "card": {
-            "header": {
-              "title": {"content": "位置上报", "tag": "plain_text"},
-              "template": "blue"
-            },
-            "elements": [
-              {"tag": "plain_text", "content": "设备: ${batch.deviceId}"},
-              {"tag": "plain_text", "content": "时间戳: ${batch.timestamp}"},
-              {"tag": "plain_text", "content": "条数: ${batch.records.size}"},
-              {"tag": "plain_text", "content": "数据: [$recordsJson]"}
-            ]
-          }
-        }
-        """.trimIndent()
+        val card = gson.toJson(mapOf(
+            "msg_type" to "interactive",
+            "card" to mapOf(
+                "header" to mapOf(
+                    "title" to mapOf("content" to "位置上报", "tag" to "plain_text"),
+                    "template" to "blue"
+                ),
+                "elements" to listOf(
+                    mapOf("tag" to "plain_text", "content" to "设备: ${batch.deviceId}"),
+                    mapOf("tag" to "plain_text", "content" to "时间戳: ${batch.timestamp}"),
+                    mapOf("tag" to "plain_text", "content" to "条数: ${batch.records.size}"),
+                    mapOf("tag" to "plain_text", "content" to "数据: ${gson.toJson(recordsArray)}")
+                )
+            )
+        ))
+        return gson.toJson(card)
     }
 }

@@ -15,6 +15,9 @@ interface LocationRecordDao {
     @Query("DELETE FROM location_record WHERE id <= :lastReportedId AND recorded_at < :cutoff")
     suspend fun deleteReportedOlderThan(lastReportedId: Long, cutoff: Long): Int
 
+    @Query("DELETE FROM location_record WHERE recorded_at < :cutoff")
+    suspend fun deleteOlderThan(cutoff: Long): Int
+
     @Query("SELECT COUNT(*) FROM location_record")
     suspend fun count(): Int
 }

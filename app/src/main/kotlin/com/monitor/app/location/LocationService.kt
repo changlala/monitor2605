@@ -43,7 +43,7 @@ class LocationService : Service(), LifecycleOwner {
         fusedClient = LocationServices.getFusedLocationProviderClient(this)
         val pm = getSystemService(Context.POWER_SERVICE) as PowerManager
         wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "monitor:location")
-        wakeLock.acquire(10 * 60 * 1000L)
+        wakeLock.acquire()
         createNotificationChannel()
         diagnosticLogger.log("service_start")
     }
@@ -85,6 +85,10 @@ class LocationService : Service(), LifecycleOwner {
     override fun onBind(intent: Intent?): IBinder? = null
 
     private fun startLocationUpdates(config: AppConfig) {
+        // Remove any existing callback to prevent duplicate registrations on restart
+        locationCallback?.let { fusedClient.removeLocationUpdates(it) }
+        locationCallback = null
+
         val decision = strategyDecider.decide(config, 100)
 
         if (decision.forceWorkManager) {

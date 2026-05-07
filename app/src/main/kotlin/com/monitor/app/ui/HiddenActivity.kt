@@ -1,7 +1,6 @@
 package com.monitor.app.ui
 
 import android.os.Bundle
-import android.os.Environment
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import com.monitor.app.diag.DiagnosticLogger
@@ -23,10 +22,7 @@ class HiddenActivity : ComponentActivity() {
     private fun exportLogs() {
         try {
             val logFiles = diagnosticLogger.getLogFiles()
-            val downloadDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_DOWNLOADS
-            )
-            val exportDir = File(downloadDir, "monitor_logs")
+            val exportDir = File(getExternalFilesDir(null), "monitor_logs")
             exportDir.mkdirs()
 
             for (file in logFiles) {

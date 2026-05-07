@@ -28,8 +28,12 @@ class CleanupWorker @AssistedInject constructor(
         val deletedLocations = locationRecordDao.deleteReportedOlderThan(lastReportedId, sevenDaysAgo)
         val deletedLogs = reportLogDao.deleteFailedOlderThan(thirtyDaysAgo)
 
+        // Absolute fallback: delete any records older than 30 days regardless of report status
+        val absoluteCutoff = now - 30 * 24 * 3600_000L
+        val absoluteDeleted = locationRecordDao.deleteOlderThan(absoluteCutoff)
+
         diagnosticLogger.log("database_cleanup",
-            """{"deleted_locations":$deletedLocations,"deleted_logs":$deletedLogs}""")
+            """{"deleted_locations":$deletedLocations,"deleted_logs":$deletedLogs,"absolute_deleted":$absoluteDeleted}""")
         return Result.success()
     }
 

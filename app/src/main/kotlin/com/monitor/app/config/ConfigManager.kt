@@ -65,7 +65,7 @@ class ConfigManager @Inject constructor(
         return json5.lines()
             .map { line ->
                 var result = line.replace(Regex("(?<!:)//.*$"), "")  // Don't strip :// in URLs
-                result = result.replace(Regex("/\\*.*?\\*/"), "")
+                result = result.replace(Regex("/\\*.*?\\*/", setOf(RegexOption.DOT_MATCHES_ALL)), "")
                 result
             }
             .filter { it.isNotBlank() }
