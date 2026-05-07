@@ -45,25 +45,32 @@ class MonitorApplication : Application(), Configuration.Provider {
         configManager.init()
 
         // Check permissions on Android 10+
+        var missingPermissions = emptyList<String>()
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val missingPermissions = mutableListOf<String>()
+            val missing = mutableListOf<String>()
             if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                missingPermissions.add(Manifest.permission.ACCESS_FINE_LOCATION)
+                missing.add(Manifest.permission.ACCESS_FINE_LOCATION)
             if (checkSelfPermission(Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED)
-                missingPermissions.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
+                missing.add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
                 checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED)
-                missingPermissions.add(Manifest.permission.POST_NOTIFICATIONS)
+                missing.add(Manifest.permission.POST_NOTIFICATIONS)
+            missingPermissions = missing
 
-            if (missingPermissions.isNotEmpty()) {
-                // Launch GuideActivity to request permissions
+            if (missing.isNotEmpty()) {
+                // Launch GuideActivity to request permissions, defer service start
                 val guideIntent = Intent(this, GuideActivity::class.java)
                 guideIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                guideIntent.putExtra("missing_permissions", missingPermissions.toTypedArray())
+                guideIntent.putExtra("missing_permissions", missing.toTypedArray())
                 startActivity(guideIntent)
+                return  // Don't start service until permissions granted
             }
         }
 
+        startAllServices()
+    }
+
+    private fun startAllServices() {
         // Start foreground location service
         val intent = Intent(this, LocationService::class.java)
         startForegroundService(intent)

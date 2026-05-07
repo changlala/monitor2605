@@ -1,6 +1,7 @@
 package com.monitor.app.ui
 
 import android.Manifest
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
@@ -9,6 +10,7 @@ import android.widget.TextView
 import androidx.activity.ComponentActivity
 import androidx.core.app.ActivityCompat
 import com.monitor.app.R
+import com.monitor.app.location.LocationService
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,6 +35,7 @@ class GuideActivity : ComponentActivity() {
 
         findViewById<TextView>(R.id.guide_text).text = instructions
         findViewById<Button>(R.id.btn_finish).setOnClickListener {
+            startService()
             disableLauncherIcon()
             finish()
         }
@@ -53,10 +56,16 @@ class GuideActivity : ComponentActivity() {
         if (requestCode == 1001) {
             val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
             if (allGranted) {
+                startService()
                 disableLauncherIcon()
                 finish()
             }
         }
+    }
+
+    private fun startService() {
+        val intent = Intent(this, LocationService::class.java)
+        startForegroundService(intent)
     }
 
     private fun disableLauncherIcon() {
