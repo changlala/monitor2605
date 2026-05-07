@@ -42,6 +42,8 @@ class LocationService : Service(), LifecycleOwner {
     private val dispatcher = ServiceLifecycleDispatcher(this)
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private var locationCallback: LocationCallback? = null
+    private var periodicCheckJob: Job? = null
+    private var lastLocationProcessedMs: Long = 0L
 
     override fun onCreate() {
         super.onCreate()
@@ -77,8 +79,9 @@ class LocationService : Service(), LifecycleOwner {
             ReportWorker.schedule(this, reportInterval)
             CleanupWorker.schedule(this)
 
-            // Periodic strategy re-evaluation
-            scope.launch {
+            // Periodic strategy re-evaluation (cancel any previous instance first)
+            periodicCheckJob?.cancel()
+            periodicCheckJob = scope.launch {
                 while (isActive) {
                     delay(60_000L) // Check every minute
                     val currentConfig = configManager.getConfigBlocking()
@@ -130,6 +133,13 @@ class LocationService : Service(), LifecycleOwner {
 
         val callback = object : LocationCallback() {
             override fun onLocationResult(result: LocationResult) {
+                val now = System.currentTimeMillis()
+                if (now - lastLocationProcessedMs < 30_000L) {
+                    // Throttle: skip rapid callbacks to prevent processing flood
+                    return
+                }
+                lastLocationProcessedMs = now
+
                 scope.launch {
                     val pct = getBatterySnapshot()
                     var lastDecision: com.monitor.app.location.StrategyDecider.Decision? = null

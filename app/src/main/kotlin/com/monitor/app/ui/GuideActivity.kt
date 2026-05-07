@@ -31,7 +31,8 @@ class GuideActivity : ComponentActivity() {
     private val permissionLauncher =
         registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { results ->
             if (allGranted()) {
-                startServiceAndFinish()
+                ensureServiceStarted()
+                updateStatus()
             } else {
                 updateStatus()
                 Toast.makeText(this, "请授予所有必需权限", Toast.LENGTH_SHORT).show()
@@ -42,15 +43,14 @@ class GuideActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_guide)
 
-        if (allGranted()) {
-            startServiceAndFinish()
-            return
-        }
-
         updateStatus()
 
         findViewById<Button>(R.id.btn_finish).setOnClickListener {
-            permissionLauncher.launch(requiredPermissions.toTypedArray())
+            if (allGranted()) {
+                Toast.makeText(this, "所有权限已授予，服务运行中", Toast.LENGTH_SHORT).show()
+            } else {
+                permissionLauncher.launch(requiredPermissions.toTypedArray())
+            }
         }
 
         findViewById<Button>(R.id.btn_settings).setOnClickListener {
@@ -63,11 +63,9 @@ class GuideActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (started) return
-        if (allGranted()) {
-            startServiceAndFinish()
-        } else {
-            updateStatus()
+        updateStatus()
+        if (!started && allGranted()) {
+            ensureServiceStarted()
         }
     }
 
@@ -106,10 +104,9 @@ class GuideActivity : ComponentActivity() {
         findViewById<TextView>(R.id.guide_text).text = sb.toString()
     }
 
-    private fun startServiceAndFinish() {
+    private fun ensureServiceStarted() {
         started = true
         val intent = Intent(this, LocationService::class.java)
         startForegroundService(intent)
-        finish()
     }
 }
