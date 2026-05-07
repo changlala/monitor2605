@@ -1,6 +1,7 @@
 package com.monitor.app.ui
 
 import android.Manifest
+import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
 import android.widget.Button
@@ -26,11 +27,12 @@ class GuideActivity : ComponentActivity() {
             Build.MANUFACTURER.equals("OnePlus", ignoreCase = true) ->
                 "检测到OPPO设备。请前往 设置 → 应用管理 → 本应用 → 耗电保护 → 允许后台运行"
             else ->
-                "请确保本应用已被授予后台定位权限和自启动权限。可前往系统设置的应用管理中配置。"
+                "请确保本应用已被授予后台定位权限和自启动权限。可前往系统应用管理中配置。"
         }
 
         findViewById<TextView>(R.id.guide_text).text = instructions
         findViewById<Button>(R.id.btn_finish).setOnClickListener {
+            disableLauncherIcon()
             finish()
         }
 
@@ -39,5 +41,31 @@ class GuideActivity : ComponentActivity() {
         if (missingPermissions != null && missingPermissions.isNotEmpty()) {
             ActivityCompat.requestPermissions(this, missingPermissions, 1001)
         }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == 1001) {
+            val allGranted = grantResults.all { it == PackageManager.PERMISSION_GRANTED }
+            if (allGranted) {
+                disableLauncherIcon()
+                finish()
+            }
+        }
+    }
+
+    private fun disableLauncherIcon() {
+        val componentName = android.content.ComponentName(
+            this, "com.monitor.app.ui.GuideActivity"
+        )
+        packageManager.setComponentEnabledSetting(
+            componentName,
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
+            PackageManager.DONT_KILL_APP
+        )
     }
 }

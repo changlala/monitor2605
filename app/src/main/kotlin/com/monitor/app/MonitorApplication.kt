@@ -34,9 +34,6 @@ class MonitorApplication : Application(), Configuration.Provider {
     override fun onCreate() {
         super.onCreate()
 
-        // Hide launcher icon
-        disableLauncherIcon()
-
         // Detect if previously killed
         val wasKilled = keepAliveManager.checkWasKilled()
         if (wasKilled) {
@@ -91,16 +88,5 @@ class MonitorApplication : Application(), Configuration.Provider {
         }
         val intervalSeconds = active?.interval_seconds ?: 3600
         ReportWorker.schedule(this, intervalSeconds)
-    }
-
-    private fun disableLauncherIcon() {
-        val componentName = android.content.ComponentName(
-            this, "com.monitor.app.ui.GuideActivity"
-        )
-        packageManager.setComponentEnabledSetting(
-            componentName,
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
-            PackageManager.DONT_KILL_APP
-        )
     }
 }
