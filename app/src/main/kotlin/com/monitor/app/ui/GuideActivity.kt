@@ -18,6 +18,8 @@ import com.monitor.app.location.LocationService
 
 class GuideActivity : ComponentActivity() {
 
+    private var started = false
+
     private val requiredPermissions = buildList {
         add(Manifest.permission.ACCESS_FINE_LOCATION)
         add(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
@@ -41,7 +43,6 @@ class GuideActivity : ComponentActivity() {
         setContentView(R.layout.activity_guide)
 
         if (allGranted()) {
-            // Already authorized, start immediately
             startServiceAndFinish()
             return
         }
@@ -57,6 +58,16 @@ class GuideActivity : ComponentActivity() {
                 data = Uri.parse("package:$packageName")
             }
             startActivity(intent)
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (started) return
+        if (allGranted()) {
+            startServiceAndFinish()
+        } else {
+            updateStatus()
         }
     }
 
@@ -96,6 +107,7 @@ class GuideActivity : ComponentActivity() {
     }
 
     private fun startServiceAndFinish() {
+        started = true
         val intent = Intent(this, LocationService::class.java)
         startForegroundService(intent)
         finish()
