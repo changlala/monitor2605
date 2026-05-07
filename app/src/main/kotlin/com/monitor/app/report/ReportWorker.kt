@@ -108,10 +108,10 @@ class ReportWorker @AssistedInject constructor(
                 ExistingPeriodicWorkPolicy.UPDATE,
                 work
             )
+        }
 
-            fun cancel(context: Context) {
-                WorkManager.getInstance(context).cancelUniqueWork("report")
-            }
+        fun cancel(context: Context) {
+            WorkManager.getInstance(context).cancelUniqueWork("report")
         }
     }
 }

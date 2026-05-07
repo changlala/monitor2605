@@ -37,12 +37,14 @@ class LocationWorker @AssistedInject constructor(
 
         val location = withTimeoutOrNull(30_000L) {
             suspendCancellableCoroutine<Location?> { cont ->
+                val cts = CancellationTokenSource()
+                cont.invokeOnCancellation { cts.cancel() }
                 val priority = if (decision.priority == "HIGH_ACCURACY")
                     Priority.PRIORITY_HIGH_ACCURACY
                 else
                     Priority.PRIORITY_BALANCED_POWER_ACCURACY
 
-                fusedClient.getCurrentLocation(priority, CancellationTokenSource().token)
+                fusedClient.getCurrentLocation(priority, cts.token)
                     .addOnSuccessListener { cont.resumeWith(Result.success(it)) }
                     .addOnFailureListener { cont.resumeWith(Result.success(null)) }
             }

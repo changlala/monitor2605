@@ -18,8 +18,12 @@ object BatteryMonitor {
     fun observe(context: Context): Flow<BatteryState> = callbackFlow {
         val filter = IntentFilter(Intent.ACTION_BATTERY_CHANGED)
         val receiver = android.content.BroadcastReceiver { _, intent ->
-            val pct = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100 /
-                    intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+            val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
+            val pct = if (scale > 0) {
+                intent.getIntExtra(BatteryManager.EXTRA_LEVEL, -1) * 100 / scale
+            } else {
+                0
+            }
             val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
             val charging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
                     status == BatteryManager.BATTERY_STATUS_FULL

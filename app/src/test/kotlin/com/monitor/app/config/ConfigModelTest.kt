@@ -17,7 +17,9 @@ class ConfigModelTest {
 
     @Test
     fun `parse full config from spec`() {
-        val json = javaClass.classLoader!!.getResource("test_config.json").readText()
+        val resource = javaClass.classLoader?.getResource("test_config.json")
+            ?: throw AssertionError("test_config.json not found in test resources")
+        val json = resource.readText()
         val cfg = gson.fromJson(json, AppConfig::class.java)
         assertEquals(1, cfg.version)
         assertEquals(3, cfg.config_sources.size)
