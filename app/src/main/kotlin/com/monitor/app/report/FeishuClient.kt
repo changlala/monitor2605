@@ -46,7 +46,7 @@ class FeishuClient @Inject constructor(
         }
     }
 
-    private fun buildCardJson(batch: ReportPayload.Batch): String {
+    internal fun buildCardJson(batch: ReportPayload.Batch): String {
         val gson = com.google.gson.Gson()
         val recordsArray = com.google.gson.JsonArray()
         for (r in batch.records) {

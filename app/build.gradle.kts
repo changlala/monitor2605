@@ -69,6 +69,10 @@ dependencies {
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.activity:activity-ktx:1.8.2")
+
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("io.mockk:mockk:1.13.8")
+    testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.7.3")
 }
 
 kapt {
