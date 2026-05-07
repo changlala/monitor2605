@@ -20,6 +20,7 @@ import com.monitor.app.diag.DiagnosticLogger
 import com.monitor.app.util.BatteryMonitor
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.first
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -91,11 +92,7 @@ class LocationService : Service(), LifecycleOwner {
     private suspend fun getBatterySnapshot(): Int {
         return try {
             withTimeout(2000L) {
-                BatteryMonitor.observe(this@LocationService).let { flow ->
-                    var result = 100
-                    flow.collect { result = it.pct; throw CancellationException() }
-                    result
-                }
+                BatteryMonitor.observe(this@LocationService).first().pct
             }
         } catch (_: Exception) { 100 }
     }
