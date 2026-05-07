@@ -16,6 +16,7 @@ class GuideActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        disableLauncherIcon()
         setContentView(R.layout.activity_guide)
 
         val instructions = when {
