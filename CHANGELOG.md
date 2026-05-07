@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.3.8 (2026-05-07)
+
+### Fixed
+- 修复 jsDelivr/GitHub Raw 配置源 URL：分支 `main`→`master`，路径补全 `config/` 前缀
+- 修复 BuildConfig 中 Gitee URL 同样缺少 `config/` 前缀的问题
+- 三个配置源现已全部可达：jsDelivr/Gitee 均返回 200
+
+---
+
 ## v1.3.7 (2026-05-07)
 
 ### Fixed
