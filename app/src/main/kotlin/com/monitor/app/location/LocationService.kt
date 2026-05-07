@@ -50,33 +50,39 @@ class LocationService : Service(), LifecycleOwner {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         dispatcher.onServicePreSuperOnStart()
-        val config = configManager.getConfigBlocking()
-        val notification = buildNotification(config)
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
-            startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
-        } else {
-            startForeground(1, notification)
-        }
-        startLocationUpdates(config)
+        try {
+            val config = configManager.getConfigBlocking()
+            val notification = buildNotification(config)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE) {
+                startForeground(1, notification, android.content.pm.ServiceInfo.FOREGROUND_SERVICE_TYPE_LOCATION)
+            } else {
+                startForeground(1, notification)
+            }
+            startLocationUpdates(config)
 
-        // Periodic strategy re-evaluation
-        scope.launch {
-            while (isActive) {
-                delay(60_000L) // Check every minute
-                val currentConfig = configManager.getConfigBlocking()
-                val pct = getBatterySnapshot()
-                val d = strategyDecider.decide(currentConfig, pct)
+            // Periodic strategy re-evaluation
+            scope.launch {
+                while (isActive) {
+                    delay(60_000L) // Check every minute
+                    val currentConfig = configManager.getConfigBlocking()
+                    val pct = getBatterySnapshot()
+                    val d = strategyDecider.decide(currentConfig, pct)
 
-                if (d.forceWorkManager) {
-                    // Stop continuous updates, switch to WorkManager
-                    locationCallback?.let { fusedClient.removeLocationUpdates(it) }
-                    LocationWorker.schedule(this@LocationService, d.intervalSeconds)
-                    diagnosticLogger.log("mode_switch", """{"to":"${d.effectiveConfig}","reason":"battery_critical"}""")
-                    // Stay as foreground service for keep-alive, but stop collecting
-                    // Cancel this coroutine
-                    cancel()
+                    if (d.forceWorkManager) {
+                        // Stop continuous updates, switch to WorkManager
+                        locationCallback?.let { fusedClient.removeLocationUpdates(it) }
+                        LocationWorker.schedule(this@LocationService, d.intervalSeconds)
+                        diagnosticLogger.log("mode_switch", """{"to":"${d.effectiveConfig}","reason":"battery_critical"}""")
+                        // Stay as foreground service for keep-alive, but stop collecting
+                        // Cancel this coroutine
+                        cancel()
+                    }
                 }
             }
+        } catch (e: Exception) {
+            diagnosticLogger.exception("service_onstartcommand", e)
+            // Rethrow to let START_STICKY restart us
+            throw e
         }
 
         return START_STICKY
