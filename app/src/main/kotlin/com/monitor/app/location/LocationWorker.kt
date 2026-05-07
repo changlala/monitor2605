@@ -71,7 +71,8 @@ class LocationWorker @AssistedInject constructor(
             withTimeout(2_000L) {
                 BatteryMonitor.observe(context).first().pct
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            diagnosticLogger.exception("get_battery_snapshot_worker", e)
             100
         }
     }

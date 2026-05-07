@@ -5,6 +5,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.io.BufferedWriter
 import java.io.File
 import java.io.FileWriter
+import java.io.PrintWriter
+import java.io.StringWriter
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
@@ -20,6 +22,8 @@ class DiagnosticLogger @Inject constructor(
     private val dateFormat = DateTimeFormatter.ofPattern("yyyy_MM_dd")
     private var currentDate: String? = null
     private var writer: BufferedWriter? = null
+    private var exceptionCurrentDate: String? = null
+    private var exceptionWriter: BufferedWriter? = null
     private val lock = Any()
 
     init {
@@ -39,9 +43,25 @@ class DiagnosticLogger @Inject constructor(
         }
     }
 
+    fun exception(tag: String, e: Throwable) {
+        synchronized(lock) {
+            try {
+                val now = Instant.now()
+                val today = LocalDate.ofInstant(now, ZoneId.systemDefault()).format(dateFormat)
+                rotateExceptionIfNeeded(today)
+                val ts = DateTimeFormatter.ISO_INSTANT.format(now)
+                val sw = StringWriter()
+                e.printStackTrace(PrintWriter(sw))
+                val line = "[$ts] $tag\n${sw}"
+                exceptionWriter?.apply { write(line + "\n"); flush() }
+            } catch (_: Exception) { }
+        }
+    }
+
     fun getLogFiles(): List<File> {
-        return logDir.listFiles()?.filter { it.name.startsWith("diagnostic_") }
-            ?.sortedByDescending { it.name } ?: emptyList()
+        return logDir.listFiles()?.filter {
+            it.name.startsWith("diagnostic_") || it.name.startsWith("exceptions_")
+        }?.sortedByDescending { it.name } ?: emptyList()
     }
 
     private fun rotateIfNeeded(today: String) {
@@ -53,9 +73,21 @@ class DiagnosticLogger @Inject constructor(
         }
     }
 
+    private fun rotateExceptionIfNeeded(today: String) {
+        if (today != exceptionCurrentDate) {
+            exceptionWriter?.close()
+            exceptionWriter = BufferedWriter(FileWriter(File(logDir, "exceptions_$today.log"), true))
+            exceptionCurrentDate = today
+        }
+    }
+
     private fun purgeOldLogs() {
         val cutoff = LocalDate.now().minusDays(7).format(dateFormat)
-        logDir.listFiles()?.filter { it.name.startsWith("diagnostic_") && it.name < "diagnostic_$cutoff" }
-            ?.forEach { it.delete() }
+        logDir.listFiles()?.filter {
+            it.name.startsWith("diagnostic_") && it.name < "diagnostic_$cutoff"
+        }?.forEach { it.delete() }
+        logDir.listFiles()?.filter {
+            it.name.startsWith("exceptions_") && it.name < "exceptions_$cutoff"
+        }?.forEach { it.delete() }
     }
 }

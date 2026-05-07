@@ -135,7 +135,10 @@ class LocationService : Service(), LifecycleOwner {
             withTimeout(2000L) {
                 BatteryMonitor.observe(this@LocationService).first().pct
             }
-        } catch (_: Exception) { 100 }
+        } catch (e: Exception) {
+            diagnosticLogger.exception("get_battery_snapshot_service", e)
+            100
+        }
     }
 
     private fun buildNotification(config: AppConfig): android.app.Notification {

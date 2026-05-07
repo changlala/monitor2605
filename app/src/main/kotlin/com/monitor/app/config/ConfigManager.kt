@@ -3,6 +3,7 @@ package com.monitor.app.config
 import android.content.Context
 import com.google.gson.Gson
 import com.monitor.app.BuildConfig
+import com.monitor.app.diag.DiagnosticLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,7 +16,8 @@ import javax.inject.Singleton
 @Singleton
 class ConfigManager @Inject constructor(
     @ApplicationContext private val context: Context,
-    private val configSources: ConfigSources
+    private val configSources: ConfigSources,
+    private val diagnosticLogger: DiagnosticLogger
 ) {
     private val gson = Gson()
     private val configFile = File(context.filesDir, "current_config.json")
@@ -41,6 +43,10 @@ class ConfigManager @Inject constructor(
             val newConfig = gson.fromJson(cleanJson, AppConfig::class.java)
             saveCached(cleanJson)
             _config.value = newConfig
+            diagnosticLogger.log("config_update", """{"version":${newConfig.version}}""")
+        }
+        result.onFailure { e ->
+            diagnosticLogger.exception("config_fetch_all_failed", e)
         }
     }
 
@@ -52,13 +58,14 @@ class ConfigManager @Inject constructor(
             } else {
                 AppConfig(config_sources = getHardcodedSources())
             }
-        } catch (_: Exception) {
+        } catch (e: Exception) {
+            diagnosticLogger.exception("config_load_cache", e)
             AppConfig(config_sources = getHardcodedSources())
         }
     }
 
     private fun saveCached(json: String) {
-        try { configFile.writeText(json) } catch (_: Exception) { }
+        try { configFile.writeText(json) } catch (e: Exception) { diagnosticLogger.exception("config_save_cache", e) }
     }
 
     private fun stripComments(json5: String): String {

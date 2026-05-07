@@ -1,5 +1,6 @@
 package com.monitor.app.config
 
+import com.monitor.app.diag.DiagnosticLogger
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.util.concurrent.TimeUnit
@@ -7,7 +8,9 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class ConfigSources @Inject constructor() {
+class ConfigSources @Inject constructor(
+    private val diagnosticLogger: DiagnosticLogger
+) {
 
     fun fetch(sources: List<ConfigSource>, timeoutSeconds: Int): Result<String> {
         val client = OkHttpClient.Builder()
@@ -22,7 +25,9 @@ class ConfigSources @Inject constructor() {
                     val body = response.body?.string()
                     if (body != null) return Result.success(body)
                 }
-            } catch (_: Exception) { }
+            } catch (e: Exception) {
+                diagnosticLogger.exception("config_fetch_fail|source=${source.url}", e)
+            }
         }
         return Result.failure(Exception("All config sources failed"))
     }

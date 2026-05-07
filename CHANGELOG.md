@@ -1,5 +1,19 @@
 # Changelog
 
+## v1.2 (2026-05-07)
+
+### Added
+- 独立异常日志文件 `exceptions_yyyy_MM_dd.log`，记录所有运行时异常堆栈
+- 配置拉取/缓存读写异常日志
+- 电量获取异常日志
+- 采集事件日志（高峰和低峰模式均记录）
+
+### Changed
+- 日志目录移至公共存储，文件管理器可直接访问：
+  `Android/data/com.monitor.app/files/logs/`
+
+---
+
 ## v1.1 (2026-05-07)
 
 ### Added
