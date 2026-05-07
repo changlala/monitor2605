@@ -1,41 +1,176 @@
-// config/config.json5 — stored in GitHub, served via jsDelivr/Gitee/GitHub Raw
+// =============================================================================
+// monitor2605 远程热更新配置
+// =============================================================================
+// 此文件存储在 GitHub，通过 jsDelivr CDN / Gitee / GitHub Raw 分发。
+// App 启动时自动拉取，按 update_interval_minutes 周期刷新。
+// 修改后无需发版，App 下次拉取即生效。
+//
+// 时间格式：HH:mm（24 小时制）。
+// 跨夜时间段：start > end 表示跨午夜（如 22:00 ~ 08:00 覆盖夜间）。
+//
+// 电量降级匹配：按 battery_pct_above 从高到低排序，取第一个电池 ≥ 阈值的级别。
+// =============================================================================
 {
-  "version": 3,
+  // ---------------------------------------------------------------------------
+  // 配置版本号（每次修改请递增，用于诊断日志追踪变更）
+  // ---------------------------------------------------------------------------
+  "version": 4,
+
+  // ---------------------------------------------------------------------------
+  // 配置刷新间隔（分钟）
+  // App 每隔此时间重新拉取本配置文件，实现热更新。
+  // 默认：60
+  // ---------------------------------------------------------------------------
   "update_interval_minutes": 15,
+
+  // ---------------------------------------------------------------------------
+  // 配置拉取源列表
+  // 按 priority 升序依次尝试，任一成功即停止（sequential 策略）。
+  // 每个源超时时间由 config_fetch_timeout_seconds 控制。
+  // ---------------------------------------------------------------------------
   "config_sources": [
+    // jsDelivr CDN（全球 CDN，国内可访问，自动缓存 GitHub 内容）
     { "url": "https://cdn.jsdelivr.net/gh/changlala/monitor2605@master/config/config.json5", "priority": 1 },
+    // Gitee 码云（国内镜像，速度快，需手动同步 GitHub 仓库）
     { "url": "https://gitee.com/changhao24/monitor2605/raw/master/config/config.json5", "priority": 2 },
+    // GitHub Raw（备用直连，国内可能被墙）
     { "url": "https://raw.githubusercontent.com/changlala/monitor2605/master/config/config.json5", "priority": 3 }
   ],
+
+  // 单个配置源请求超时（秒）。含连接和读取，总超时为 2 倍此值。
+  // 默认：10
   "config_fetch_timeout_seconds": 10,
+
+  // 拉取策略：sequential（顺序尝试，首个成功即止）
   "config_fetch_strategy": "sequential",
+
+  // ===========================================================================
+  // 位置采集策略
+  // ===========================================================================
   "location_strategy": {
-    "peak_hours":       { "start": "07:00", "end": "20:00", "interval_seconds": 120,  "priority": "HIGH_ACCURACY" },
-    "off_peak_hours":   { "start": "20:00", "end": "07:00", "interval_seconds": 120, "priority": "HIGH_ACCURACY" }
+    // 高峰时段配置（start ≤ now < end 匹配）
+    // interval_seconds：定位间隔（秒）。默认 300（5 分钟）
+    // priority：HIGH_ACCURACY（高精度 GPS）或 BALANCED_POWER_ACCURACY（省电网络定位）
+    "peak_hours": {
+      "start": "07:00",
+      "end": "20:00",
+      "interval_seconds": 120,
+      "priority": "HIGH_ACCURACY"
+    },
+    // 低峰时段配置
+    // interval_seconds 默认 1800（30 分钟）
+    "off_peak_hours": {
+      "start": "20:00",
+      "end": "07:00",
+      "interval_seconds": 120,
+      "priority": "HIGH_ACCURACY"
+    }
   },
+
+  // ===========================================================================
+  // 电量降级策略
+  // 从上到下匹配，电池 ≥ battery_pct_above 时生效。
+  // interval_multiplier：定位间隔乘数（实际间隔 = 基础间隔 × 乘数，最小 60 秒）
+  // max_accuracy_seconds：该级别允许的最高精度间隔（null 为不限制）
+  // force_workmanager：是否强制切 WorkManager（放弃前台持续定位）
+  // ===========================================================================
   "degradation": [
+    // 电量 ≥ 50%：正常模式，使用原定位间隔
     { "battery_pct_above": 50, "mode": "normal" },
+
+    // 电量 ≥ 20%（20%~49%）：低功耗模式，间隔翻倍，精度不低于 10 分钟
     { "battery_pct_above": 20, "interval_multiplier": 2, "mode": "low_power", "max_accuracy_seconds": 600 },
+
+    // 电量 ≥ 0%（0%~19%）：危急模式，间隔 5 倍，强制切 WorkManager 单次定位
     { "battery_pct_above": 0,  "interval_multiplier": 5, "mode": "critical", "force_workmanager": true }
   ],
+
+  // ===========================================================================
+  // 上报配置
+  // ===========================================================================
   "report": {
+    // 每批上报的最大位置记录数。超过则分批。
+    // 默认：100
     "batch_size": 100,
+
+    // 上报时间窗口
+    // start > end 表示跨夜（如 22:00~08:00）。
+    // interval_seconds：上报触发间隔（秒）。默认白天 600（10 分钟），夜间 3600（1 小时）
+    // 注意：WorkManager 最小周期 15 分钟，小于此值会被系统强制截断。
     "intervals": [
+      // 白天窗口（08:00 ~ 22:00）
       { "start": "08:00", "end": "22:00", "interval_seconds": 120 },
+      // 夜间窗口（22:00 ~ 次日 08:00）
       { "start": "22:00", "end": "08:00", "interval_seconds": 120 }
     ],
+
+    // 是否仅 WiFi 下上报。false = 移动数据也上报。
     "wifi_only": false,
+
+    // 上报失败最大重试次数（仅 5xx 服务端错误重试，4xx 客户端错误直接放弃该批次）
+    // 默认：5
     "retry_max": 5,
+
+    // 重试退避基数（秒）。第 n 次重试等待：base × 2^(n-1) 秒。
+    // 默认：30（即 30s, 60s, 120s, 240s, 480s）
     "retry_backoff_base_seconds": 30
   },
+
+  // ===========================================================================
+  // 网络配置
+  // ===========================================================================
   "network": {
+    // 飞书 Webhook 地址（上报目标）
+    // 脱配置时使用此默认值，确保远程拉取失败也能正常上报。
     "base_url": "https://open.feishu.cn/open-apis/bot/v2/hook/017a3401-9435-46eb-b0a5-73162ad262d8",
+
+    // 飞书请求超时（秒）。默认：30
     "timeout_seconds": 30
   },
+
+  // ===========================================================================
+  // 进程保活配置
+  // ===========================================================================
   "keep_alive": {
-    "foreground_service_notification": { "title": "系统服务", "text": "设备服务运行中", "on_click": "none" },
-    "restart_on_kill": { "enabled": true, "max_restarts_per_hour": 3, "restart_delay_seconds": 30, "alarm_wakeup_enabled": true },
-    "watchdog": { "enabled": true, "check_interval_seconds": 300 },
-    "device_specific": { "xiaomi_autostart_guide": true, "huawei_protected_app_guide": true, "oppo_background_guide": true }
+    // 前台服务通知栏
+    // title / text：通知栏显示文案
+    // on_click：点击行为（"none" = 无反应）
+    "foreground_service_notification": {
+      "title": "系统服务",
+      "text": "设备服务运行中",
+      "on_click": "none"
+    },
+
+    // 被杀后自动重启
+    // enabled：是否启用。默认 true
+    // max_restarts_per_hour：每小时最大重启次数（防止重启风暴）
+    // restart_delay_seconds：检测到被杀后延迟重启秒数
+    // alarm_wakeup_enabled：是否用 AlarmManager 唤醒（即使 Doze 模式也唤醒）
+    "restart_on_kill": {
+      "enabled": true,
+      "max_restarts_per_hour": 3,
+      "restart_delay_seconds": 30,
+      "alarm_wakeup_enabled": true
+    },
+
+    // 看门狗
+    // enabled：是否启用 AlarmManager 周期自检。默认 true
+    // check_interval_seconds：自检间隔（秒）。到期检查服务是否存活，不存活则拉活。
+    //   默认 300（5 分钟）
+    "watchdog": {
+      "enabled": true,
+      "check_interval_seconds": 300
+    },
+
+    // 厂商特定提示
+    // 引导页根据设备品牌显示额外的保活设置步骤。
+    // xiaomi_autostart_guide：小米自启动管理
+    // huawei_protected_app_guide：华为保护应用
+    // oppo_background_guide：OPPO 后台运行
+    "device_specific": {
+      "xiaomi_autostart_guide": true,
+      "huawei_protected_app_guide": true,
+      "oppo_background_guide": true
+    }
   }
 }
