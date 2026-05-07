@@ -45,8 +45,8 @@ class LocationWorker @AssistedInject constructor(
                     Priority.PRIORITY_BALANCED_POWER_ACCURACY
 
                 fusedClient.getCurrentLocation(priority, cts.token)
-                    .addOnSuccessListener { cont.resume(it) }
-                    .addOnFailureListener { cont.resume(null) }
+                    .addOnSuccessListener { cont.resume(it, null) }
+                    .addOnFailureListener { cont.resume(null, null) }
             }
         }
 
