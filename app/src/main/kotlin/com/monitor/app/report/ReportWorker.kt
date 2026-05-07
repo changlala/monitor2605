@@ -49,9 +49,10 @@ class ReportWorker @AssistedInject constructor(
         diagnosticLogger.log("report_worker_run",
             """{"interval":${activeInterval.interval_seconds},"batch_size":$batchSize}""")
 
+        var lastProcessedId = reportLogDao.getLastReportedRecordId()
+
         while (true) {
-            val lastReportedId = reportLogDao.getLastReportedRecordId()
-            val batch = locationRecordDao.getUnreported(lastReportedId, batchSize)
+            val batch = locationRecordDao.getUnreported(lastProcessedId, batchSize)
             if (batch.isEmpty()) break
 
             val payload = ReportPayload.build(batch, deviceId)
@@ -74,6 +75,7 @@ class ReportWorker @AssistedInject constructor(
             if (result.success) {
                 retryCount = 0
                 batchesReported++
+                lastProcessedId = batch.last().id
                 // Continue to next batch
             } else {
                 val isClientError = result.responseCode in 400..499
@@ -82,7 +84,8 @@ class ReportWorker @AssistedInject constructor(
                         """{"count":${batch.size},"code":${result.responseCode},"reason":"4xx_client_error"}""")
                     retryCount = 0
                     batchesReported++
-                    // Continue to next batch
+                    lastProcessedId = batch.last().id
+                    // Skip bad batch, continue to next batch
                 } else {
                     retryCount++
                     if (retryCount >= config.report.retry_max) {

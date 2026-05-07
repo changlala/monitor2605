@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.4.0 (2026-05-07)
+
+### Fixed
+- 修复 buildCardJson 双重 JSON 编码导致飞书返回 400（gson.toJson 结果再被 toJson 包裹为字符串字面量）
+- 修复 4xx 上报失败后无限循环：getLastReportedRecordId 只计 success=1，废弃批次未被跳过。改用 lastProcessedId 本地追踪，4xx 废弃后正确推进到下一批
+
+---
+
 ## v1.3.9 (2026-05-07)
 
 ### Fixed

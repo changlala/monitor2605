@@ -61,7 +61,7 @@ class FeishuClient @Inject constructor(
             }
             recordsArray.add(obj)
         }
-        val card = gson.toJson(mapOf(
+        return gson.toJson(mapOf(
             "msg_type" to "interactive",
             "card" to mapOf(
                 "header" to mapOf(
@@ -76,6 +76,5 @@ class FeishuClient @Inject constructor(
                 )
             )
         ))
-        return gson.toJson(card)
     }
 }
