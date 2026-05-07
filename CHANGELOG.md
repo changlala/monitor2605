@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.3.3 (2026-05-07)
+
+### Fixed
+- 加固开机自启：扩大异常捕获，startForegroundService 失败后自动降级 WorkManager 拉起
+
+---
+
 ## v1.3.2 (2026-05-07)
 
 ### Changed
