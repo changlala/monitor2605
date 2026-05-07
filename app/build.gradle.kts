@@ -26,6 +26,16 @@ android {
         release {
             isMinifyEnabled = true
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+            signingConfig = signingConfigs.getByName("release")
+        }
+    }
+
+    signingConfigs {
+        create("release") {
+            storeFile = rootProject.file("monitor-release.jks")
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: "monitor2605"
+            keyAlias = "monitor"
+            keyPassword = System.getenv("KEY_PASSWORD") ?: "monitor2605"
         }
     }
 
