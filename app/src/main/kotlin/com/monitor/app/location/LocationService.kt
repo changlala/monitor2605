@@ -109,10 +109,15 @@ class LocationService : Service(), LifecycleOwner {
             override fun onLocationResult(result: LocationResult) {
                 scope.launch {
                     val pct = getBatterySnapshot()
+                    var lastDecision: com.monitor.app.location.StrategyDecider.Decision? = null
                     for (loc in result.locations) {
                         val d = strategyDecider.decide(config, pct)
                         locationRepository.maybeInsert(loc, pct, d.intervalSeconds)
+                        lastDecision = d
                     }
+                    val d = lastDecision ?: return@launch
+                    diagnosticLogger.log("location_collected",
+                        """{"mode":"${d.effectiveConfig}","count":${result.locations.size},"pct":$pct}""")
                 }
             }
         }

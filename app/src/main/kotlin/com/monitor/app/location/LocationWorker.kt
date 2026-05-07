@@ -53,8 +53,13 @@ class LocationWorker @AssistedInject constructor(
         if (location != null) {
             locationRepository.maybeInsert(location, batteryPct, decision.intervalSeconds)
             diagnosticLogger.log(
-                "location_workmanager",
-                """{"mode":"${decision.effectiveConfig}","pct":$batteryPct}"""
+                "location_collected",
+                """{"mode":"${decision.effectiveConfig}","count":1,"pct":$batteryPct}"""
+            )
+        } else {
+            diagnosticLogger.log(
+                "location_failed",
+                """{"mode":"${decision.effectiveConfig}","reason":"getCurrentLocation_null","pct":$batteryPct}"""
             )
         }
 
