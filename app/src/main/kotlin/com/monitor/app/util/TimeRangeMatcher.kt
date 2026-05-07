@@ -20,6 +20,13 @@ object TimeRangeMatcher {
 
     private fun String.toMinuteOfDay(): Int {
         val parts = split(":")
-        return parts[0].toInt() * 60 + parts[1].toInt()
+        require(parts.size == 2 && parts[0].length == 2 && parts[1].length == 2) {
+            "Invalid time format: '$this'. Expected HH:mm."
+        }
+        val hour = parts[0].toIntOrNull() ?: throw IllegalArgumentException("Invalid hour in '$this'")
+        val minute = parts[1].toIntOrNull() ?: throw IllegalArgumentException("Invalid minute in '$this'")
+        require(hour in 0..23) { "Hour out of range in '$this'" }
+        require(minute in 0..59) { "Minute out of range in '$this'" }
+        return hour * 60 + minute
     }
 }
