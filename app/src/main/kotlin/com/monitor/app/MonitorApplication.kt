@@ -11,11 +11,8 @@ import com.monitor.app.config.ConfigManager
 import com.monitor.app.diag.DiagnosticLogger
 import com.monitor.app.keepalive.KeepAliveManager
 import com.monitor.app.location.LocationService
-import com.monitor.app.report.ReportWorker
 import com.monitor.app.ui.GuideActivity
-import com.monitor.app.util.TimeRangeMatcher
 import dagger.hilt.android.HiltAndroidApp
-import java.time.LocalTime
 import javax.inject.Inject
 
 @HiltAndroidApp
@@ -69,29 +66,19 @@ class MonitorApplication : Application(), Configuration.Provider {
     }
 
     private fun startAllServices() {
-        // Start foreground location service
-        val intent = Intent(this, LocationService::class.java)
-        startForegroundService(intent)
+        try {
+            // Start foreground location service
+            val intent = Intent(this, LocationService::class.java)
+            startForegroundService(intent)
 
-        // Schedule watchdog
-        val config = configManager.getConfigBlocking()
-        keepAliveManager.scheduleWatchdog(config.keep_alive.watchdog.check_interval_seconds)
+            // Schedule watchdog
+            val config = configManager.getConfigBlocking()
+            keepAliveManager.scheduleWatchdog(config.keep_alive.watchdog.check_interval_seconds)
 
-        // Schedule report worker
-        scheduleReportUpdate()
-
-        // Schedule cleanup
-        CleanupWorker.schedule(this)
-    }
-
-    private fun scheduleReportUpdate() {
-        val now = LocalTime.now()
-        val config = configManager.getConfigBlocking()
-        val active = config.report.intervals.find { interval ->
-            val range = TimeRangeMatcher.TimeRange(interval.start, interval.end)
-            TimeRangeMatcher.isInRange(range, now)
+            // Schedule cleanup (report scheduling is handled by LocationService.onStartCommand)
+            CleanupWorker.schedule(this)
+        } catch (e: Exception) {
+            diagnosticLogger.exception("start_all_services", e)
         }
-        val intervalSeconds = active?.interval_seconds ?: 3600
-        ReportWorker.schedule(this, intervalSeconds)
     }
 }

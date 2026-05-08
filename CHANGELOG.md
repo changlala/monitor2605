@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.5.1 (2026-05-08)
+
+### Fixed
+- startAllServices 增加 try-catch 保护，防止 startForegroundService 异常导致 App 闪退
+- 移除 Application 中重复的 scheduleReportUpdate（已统一由 LocationService.onStartCommand 调度）
+- 清理 MonitorApplication 中已无用的 imports
+
+---
+
 ## v1.5.0 (2026-05-08)
 
 ### Changed
