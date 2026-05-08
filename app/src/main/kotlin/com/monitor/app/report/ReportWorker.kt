@@ -113,7 +113,8 @@ class ReportWorker @AssistedInject constructor(
         fun schedule(context: Context, intervalSeconds: Int) {
             val work = PeriodicWorkRequestBuilder<ReportWorker>(
                 intervalSeconds.toLong(), TimeUnit.SECONDS
-            ).setConstraints(
+            ).setInitialDelay(60, TimeUnit.SECONDS)
+            .setConstraints(
                 Constraints.Builder()
                     .setRequiredNetworkType(NetworkType.CONNECTED)
                     .build()
