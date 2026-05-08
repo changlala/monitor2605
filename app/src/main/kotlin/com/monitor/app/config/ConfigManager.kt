@@ -29,7 +29,13 @@ class ConfigManager @Inject constructor(
     fun init() {
         val cached = loadCached()
         _config.value = cached
-        scope.launch { fetchAndApply() }
+        scope.launch {
+            while (isActive) {
+                fetchAndApply()
+                // Wait based on the latest config's update interval
+                delay(_config.value.update_interval_minutes * 60_000L)
+            }
+        }
     }
 
     private suspend fun fetchAndApply() {

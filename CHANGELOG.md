@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.4.1 (2026-05-08)
+
+### Fixed
+- 修复 update_interval_minutes 从未生效：ConfigManager 仅在启动时拉取一次，现改为按配置间隔周期刷新
+- 修复 config.json5 report.intervals 窗口覆盖缺口（23:00~00:00 无匹配区间导致跳过上报）
+
+---
+
 ## v1.4.0 (2026-05-07)
 
 ### Fixed
