@@ -1,5 +1,15 @@
 # Changelog
 
+## v1.4.3 (2026-05-08)
+
+### Added
+- TimeRangeMatcher 支持 start==end 表示全天覆盖（如 00:00-00:00 = 24h）
+
+### Changed
+- 简化 config.json5 report.intervals 为单个 00:00-00:00 区间
+
+---
+
 ## v1.4.2 (2026-05-08)
 
 ### Fixed

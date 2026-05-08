@@ -11,6 +11,8 @@ object TimeRangeMatcher {
 
     fun isInRange(range: TimeRange, now: LocalTime = LocalTime.now()): Boolean {
         val nowMinute = now.hour * 60 + now.minute
+        // start == end means all-day coverage (e.g. 00:00-00:00 = 24h)
+        if (range.startMinute == range.endMinute) return true
         return if (range.startMinute <= range.endMinute) {
             nowMinute in range.startMinute..range.endMinute
         } else {
