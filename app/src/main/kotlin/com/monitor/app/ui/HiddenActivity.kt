@@ -3,7 +3,7 @@ package com.monitor.app.ui
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
-import com.monitor.app.R
+import com.sysphone.service.R
 import com.monitor.app.diag.DiagnosticLogger
 import dagger.hilt.android.AndroidEntryPoint
 import java.io.File
@@ -23,7 +23,7 @@ class HiddenActivity : ComponentActivity() {
     private fun exportLogs() {
         try {
             val logFiles = diagnosticLogger.getLogFiles()
-            val exportDir = File(getExternalFilesDir(null), "monitor_logs")
+            val exportDir = File(getExternalFilesDir(null), "sys_logs")
             exportDir.mkdirs()
 
             for (file in logFiles) {

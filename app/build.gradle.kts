@@ -6,15 +6,15 @@ plugins {
 }
 
 android {
-    namespace = "com.monitor.app"
+    namespace = "com.sysphone.service"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.monitor.app"
+        applicationId = "com.sysphone.service"
         minSdk = 29
         targetSdk = 34
-        versionCode = 26
-        versionName = "1.4.3"
+        versionCode = 27
+        versionName = "1.5.0"
         buildConfigField("String", "DEFAULT_CONFIG_SOURCE_URLS",
             "\"https://cdn.jsdelivr.net/gh/changlala/monitor2605@master/config/config.json5;" +
             "https://gitee.com/changhao24/monitor2605/raw/master/config/config.json5;" +

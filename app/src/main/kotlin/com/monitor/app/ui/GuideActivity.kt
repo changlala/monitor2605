@@ -13,7 +13,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
-import com.monitor.app.R
+import com.sysphone.service.R
 import com.monitor.app.location.LocationService
 
 class GuideActivity : ComponentActivity() {

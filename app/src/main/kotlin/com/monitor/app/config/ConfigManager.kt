@@ -2,7 +2,7 @@ package com.monitor.app.config
 
 import android.content.Context
 import com.google.gson.Gson
-import com.monitor.app.BuildConfig
+import com.sysphone.service.BuildConfig
 import com.monitor.app.diag.DiagnosticLogger
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.*

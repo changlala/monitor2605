@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.5.0 (2026-05-08)
+
+### Changed
+- 应用包名从 com.monitor.app 改为 com.sysphone.service，隐蔽身份
+- 应用展示名称从"系统服务"改为"手机系统服务"
+- 日志导出目录从 monitor_logs 改为 sys_logs
+
+---
+
 ## v1.4.3 (2026-05-08)
 
 ### Added
