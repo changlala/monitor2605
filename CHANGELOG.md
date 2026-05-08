@@ -1,5 +1,14 @@
 # Changelog
 
+## v1.5.2 (2026-05-08)
+
+### Fixed
+- 修复包名改为 com.sysphone.service 后 AndroidManifest 组件类名解析失败导致 ClassNotFoundException
+- 所有组件由相对路径（如 .MonitorApplication）改为全限定名（com.monitor.app.MonitorApplication）
+- Android 不再尝试在 com.sysphone.service 包下查找类，正确指向 com.monitor.app 源码包
+
+---
+
 ## v1.5.1 (2026-05-08)
 
 ### Fixed

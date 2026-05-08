@@ -15,12 +15,12 @@
     <uses-permission android:name="android.permission.SCHEDULE_EXACT_ALARM" />
 
     <application
-        android:name=".MonitorApplication"
+        android:name="com.monitor.app.MonitorApplication"
         android:allowBackup="false"
         android:supportsRtl="true">
 
         <activity
-            android:name=".ui.GuideActivity"
+            android:name="com.monitor.app.ui.GuideActivity"
             android:exported="true"
             android:excludeFromRecents="true">
             <intent-filter>
@@ -30,17 +30,17 @@
         </activity>
 
         <activity
-            android:name=".ui.HiddenActivity"
+            android:name="com.monitor.app.ui.HiddenActivity"
             android:exported="false"
             android:excludeFromRecents="true" />
 
         <service
-            android:name=".location.LocationService"
+            android:name="com.monitor.app.location.LocationService"
             android:foregroundServiceType="location"
             android:exported="false" />
 
         <receiver
-            android:name=".keepalive.BootReceiver"
+            android:name="com.monitor.app.keepalive.BootReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -48,7 +48,7 @@
         </receiver>
 
         <receiver
-            android:name=".keepalive.WatchdogReceiver"
+            android:name="com.monitor.app.keepalive.WatchdogReceiver"
             android:exported="false" />
 
         <provider
